@@ -1,0 +1,27 @@
+name: CI
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate manifest and role assets
+        run: python3 scripts/validate.py
+      - name: Check shell syntax
+        run: sh -n scripts/openflows-runtime && find orchestration/plugin/hooks -name '*.sh' -exec sh -n {} +
+      - name: Build image
+        run: docker build --platform linux/amd64 -t workspace-runtime:ci .
+      - name: Check every role and installed assets
+        run: |
+          for role in nexus forge sentinel vessel lore; do
+            docker run --rm -e OPENFLOWS_ROLE="$role" workspace-runtime:ci openflows-runtime check
+            docker run --rm -e OPENFLOWS_ROLE="$role" workspace-runtime:ci sh -c \
+              'openflows-runtime install && test -f "/home/coder/.openflows/artifacts/orchestration/agent/agents/$OPENFLOWS_ROLE.agent.md"'
+          done

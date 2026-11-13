@@ -1,0 +1,43 @@
+#!/bin/bash
+# Stop hook — refuse to end the session until the flow artifacts exist.
+# Exit 2 blocks the stop and feeds stderr back to the agent, which keeps the
+# forge loop moving through the defined flow instead of ending silently.
+
+input=$(cat)
+
+# Avoid infinite stop loops: if the agent is already continuing because of a
+# previous stop-hook block, let it stop.
+case "$input" in
+  *'"stop_hook_active":true'* | *'"stop_hook_active": true'*) exit 0 ;;
+esac
+
+if ! command -v openflows-harness >/dev/null 2>&1; then
+  exit 0
+fi
+
+status=$(openflows-harness status get 2>/dev/null || echo '{}')
+phase=$(printf '%s' "$status" | sed -n 's/.*"phase"[[:space:]]*:[[:space:]]*"\([^"]*\)".*/\1/p')
+
+case "$phase" in
+  plan_ready|testing|plan_rejected)
+    # Planning is an intentional gate: FORGE should stop after writing PLAN.md
+    # and let SENTINEL review/approve before implementation begins.
+    exit 0
+    ;;
+  submit|blocked|done)
+    # Terminal-enough states: sentinel/human takes over from here.
+    exit 0
+    ;;
+  *)
+    {
+      echo "Ticket ${OPENFLOWS_TICKET:-?} is not finished (phase='${phase:-unset}', no PR recorded)."
+      echo "Complete the flow before stopping:"
+      echo "  1. Finish implementation, commit, and enter testing; wait for SENTINEL approval."
+      echo "  2. Read status get; testing approval moves the lifecycle to submit automatically."
+      echo "  3. In submit, push the assigned branch. If no PR is recorded, run openflows-harness pr create --repo OWNER/REPO --base BASE --head <branch> --title <descriptive-title> --body <markdown-description>."
+      echo "  4. Write the handoff: openflows-harness handoff write --contract <file>."
+      echo "If you are genuinely stuck, run: openflows-harness status set blocked (and explain why)."
+    } >&2
+    exit 2
+    ;;
+esac

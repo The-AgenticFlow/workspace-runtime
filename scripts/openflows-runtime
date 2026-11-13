@@ -1,0 +1,41 @@
+#!/bin/sh
+set -eu
+
+role="${OPENFLOWS_ROLE:-}"
+src="${OPENFLOWS_ASSET_ROOT:-/opt/openflows/orchestration}"
+dst="${OPENFLOWS_ARTIFACTS_DIR:-/home/coder/.openflows/artifacts}"
+
+usage() {
+  echo "usage: OPENFLOWS_ROLE=nexus|forge|sentinel|vessel|lore openflows-runtime install|check" >&2
+  exit 2
+}
+
+case "$role" in nexus|forge|sentinel|vessel|lore) ;; *) usage ;; esac
+case "${1:-}" in install|check) action="$1" ;; *) usage ;; esac
+
+test -f "$src/agent/agents/$role.agent.md"
+test -d "$src/plugin/skills/shared-harness-protocol"
+test -d "$src/plugin/hooks/$role"
+command -v openflows-harness >/dev/null
+command -v claude >/dev/null
+
+if [ "$action" = check ]; then
+  printf 'workspace-runtime %s role=%s harness=%s\n' \
+    "${OPENFLOWS_RUNTIME_VERSION:-unknown}" "$role" "$(command -v openflows-harness)"
+  exit 0
+fi
+
+mkdir -p "$dst/orchestration/agent/agents" "$dst/orchestration/agent/standards" \
+  "$dst/plugin/skills" "$dst/plugin/commands" "$dst/plugin/hooks/$role"
+cp "$src/agent/agents/$role.agent.md" "$dst/orchestration/agent/agents/"
+cp "$src/agent/standards/"*.md "$dst/orchestration/agent/standards/"
+cp -R "$src/plugin/skills/shared-harness-protocol" "$dst/plugin/skills/"
+cp -R "$src/plugin/skills/shared-claude-api" "$dst/plugin/skills/"
+for skill in "$src/plugin/skills/$role"-*; do
+  [ -d "$skill" ] || continue
+  cp -R "$skill" "$dst/plugin/skills/"
+done
+cp "$src/plugin/commands/"*.md "$dst/plugin/commands/"
+cp -R "$src/plugin/hooks/$role/." "$dst/plugin/hooks/$role/"
+printf 'Installed %s assets from workspace-runtime %s into %s\n' \
+  "$role" "${OPENFLOWS_RUNTIME_VERSION:-unknown}" "$dst"

@@ -1,0 +1,49 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "OpenFlows workspace runtime release manifest",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "runtime_version", "status", "image", "roles", "bootstrap", "harness", "compatibility"],
+  "properties": {
+    "schema_version": {"const": 1},
+    "runtime_version": {"type": "string", "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$"},
+    "status": {"enum": ["candidate", "compatible"]},
+    "image": {
+      "type": "object", "additionalProperties": false,
+      "required": ["repository", "digest", "architectures"],
+      "properties": {
+        "repository": {"const": "ghcr.io/the-agenticflow/workspace-runtime"},
+        "digest": {"type": "string", "pattern": "^sha256:[0-9a-f]{64}$"},
+        "architectures": {"type": "array", "minItems": 2, "uniqueItems": true, "items": {"enum": ["linux/amd64", "linux/arm64"]}}
+      }
+    },
+    "roles": {"type": "array", "minItems": 5, "maxItems": 5, "uniqueItems": true, "items": {"enum": ["nexus", "forge", "sentinel", "vessel", "lore"]}},
+    "bootstrap": {
+      "type": "object", "additionalProperties": false,
+      "required": ["contract_version", "asset_install_command", "role_environment_variable", "credential_file", "asset_directory"],
+      "properties": {
+        "contract_version": {"const": 1},
+        "asset_install_command": {"const": "openflows-runtime install"},
+        "role_environment_variable": {"const": "OPENFLOWS_ROLE"},
+        "credential_file": {"const": "/run/openflows/runtime.json"},
+        "asset_directory": {"const": "/home/coder/.openflows/artifacts"}
+      }
+    },
+    "harness": {
+      "type": "object", "additionalProperties": false,
+      "required": ["name", "openflows_release"],
+      "properties": {
+        "name": {"const": "openflows-harness"},
+        "openflows_release": {"type": "string", "pattern": "^openflows-[0-9]+\\.[0-9]+\\.[0-9]+$"}
+      }
+    },
+    "compatibility": {
+      "type": "object", "additionalProperties": false,
+      "required": ["openflows_template_parameter_schema_versions", "minimum_manager_version"],
+      "properties": {
+        "openflows_template_parameter_schema_versions": {"type": "array", "uniqueItems": true, "items": {"type": "integer", "minimum": 1}},
+        "minimum_manager_version": {"type": ["string", "null"], "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$"}
+      }
+    }
+  }
+}

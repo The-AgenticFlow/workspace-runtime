@@ -1,0 +1,26 @@
+{
+  "schema_version": 1,
+  "runtime_version": "0.1.0",
+  "status": "candidate",
+  "image": {
+    "repository": "ghcr.io/the-agenticflow/workspace-runtime",
+    "digest": "__IMAGE_DIGEST__",
+    "architectures": ["linux/amd64", "linux/arm64"]
+  },
+  "roles": ["nexus", "forge", "sentinel", "vessel", "lore"],
+  "bootstrap": {
+    "contract_version": 1,
+    "asset_install_command": "openflows-runtime install",
+    "role_environment_variable": "OPENFLOWS_ROLE",
+    "credential_file": "/run/openflows/runtime.json",
+    "asset_directory": "/home/coder/.openflows/artifacts"
+  },
+  "harness": {
+    "name": "openflows-harness",
+    "openflows_release": "openflows-1.8.2"
+  },
+  "compatibility": {
+    "openflows_template_parameter_schema_versions": [],
+    "minimum_manager_version": null
+  }
+}
