@@ -43,7 +43,7 @@ jobs:
           provenance: mode=max
           sbom: true
       - name: Attest image provenance
-        uses: actions/attest-build-provenance@v3
+        uses: actions/attest-build-provenance@v4
         with:
           subject-name: ghcr.io/the-agenticflow/workspace-runtime
           subject-digest: ${{ steps.build.outputs.digest }}
