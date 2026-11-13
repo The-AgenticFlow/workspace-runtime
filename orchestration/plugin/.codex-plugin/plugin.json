@@ -1,29 +1,36 @@
 {
   "name": "orchestration",
-  "version": "3.0.0",
-  "description": "Autonomous agent pair tooling for AgentFlow FORGE-SENTINEL architecture",
+  "version": "0.1.0",
+  "description": "OpenFlows agent workspace role tooling",
   "author": {
-    "name": "AgentFlow Team",
-    "email": "team@agentflow.dev",
-    "url": "https://github.com/arthur-debert/agentflow"
+    "name": "The-AgenticFlow",
+    "url": "https://github.com/The-AgenticFlow"
   },
-  "homepage": "https://github.com/arthur-debert/agentflow/tree/main/orchestration/plugin",
-  "repository": "https://github.com/arthur-debert/agentflow.git",
+  "homepage": "https://github.com/The-AgenticFlow/workspace-runtime/tree/main/orchestration/plugin",
+  "repository": "https://github.com/The-AgenticFlow/workspace-runtime.git",
   "license": "MIT",
-  "keywords": ["agent", "orchestration", "forge", "sentinel", "automation"],
+  "keywords": [
+    "agent",
+    "orchestration",
+    "forge",
+    "sentinel",
+    "automation"
+  ],
   "skills": "./skills/",
   "mcpServers": "./mcp/mcp.json.template",
   "hooks": "./hooks/hooks.json",
   "interface": {
-    "displayName": "AgentFlow Orchestration",
-    "shortDescription": "FORGE-SENTINEL agent pair tooling",
+    "displayName": "OpenFlows Orchestration",
+    "shortDescription": "OpenFlows workspace role tooling",
     "longDescription": "Provides skills, hooks, and commands for autonomous agent orchestration including FORGE (implementation), SENTINEL (review), NEXUS (coordination), VESSEL (CI/CD), and LORE (documentation) agents.",
-    "developerName": "AgentFlow Team",
+    "developerName": "The-AgenticFlow",
     "category": "Developer Tools",
-    "capabilities": ["Read", "Write", "Execute"],
-    "websiteURL": "https://github.com/arthur-debert/agentflow",
-    "privacyPolicyURL": "https://github.com/arthur-debert/agentflow/blob/main/LICENSE",
-    "termsOfServiceURL": "https://github.com/arthur-debert/agentflow/blob/main/LICENSE",
+    "capabilities": [
+      "Read",
+      "Write",
+      "Execute"
+    ],
+    "websiteURL": "https://github.com/The-AgenticFlow/workspace-runtime",
     "defaultPrompt": [
       "Use FORGE skills for autonomous code implementation.",
       "Use SENTINEL skills for code review and quality assurance.",
