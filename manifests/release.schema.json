@@ -3,18 +3,20 @@
   "title": "OpenFlows workspace runtime release manifest",
   "type": "object",
   "additionalProperties": false,
-  "required": ["schema_version", "runtime_version", "status", "image", "roles", "bootstrap", "harness", "compatibility"],
+  "required": ["schema_version", "runtime_version", "status", "images", "roles", "bootstrap", "harness", "compatibility"],
   "properties": {
-    "schema_version": {"const": 1},
+    "schema_version": {"const": 2},
     "runtime_version": {"type": "string", "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$"},
     "status": {"enum": ["candidate", "compatible"]},
-    "image": {
+    "images": {
       "type": "object", "additionalProperties": false,
-      "required": ["repository", "digest", "architectures"],
+      "required": ["nexus", "forge", "sentinel", "vessel", "lore"],
       "properties": {
-        "repository": {"const": "ghcr.io/the-agenticflow/workspace-runtime"},
-        "digest": {"type": "string", "pattern": "^sha256:[0-9a-f]{64}$"},
-        "architectures": {"type": "array", "minItems": 2, "uniqueItems": true, "items": {"enum": ["linux/amd64", "linux/arm64"]}}
+        "nexus": {"$ref": "#/$defs/image"},
+        "forge": {"$ref": "#/$defs/image"},
+        "sentinel": {"$ref": "#/$defs/image"},
+        "vessel": {"$ref": "#/$defs/image"},
+        "lore": {"$ref": "#/$defs/image"}
       }
     },
     "roles": {"type": "array", "minItems": 5, "maxItems": 5, "uniqueItems": true, "items": {"enum": ["nexus", "forge", "sentinel", "vessel", "lore"]}},
@@ -22,11 +24,11 @@
       "type": "object", "additionalProperties": false,
       "required": ["contract_version", "asset_install_command", "role_environment_variable", "credential_file", "asset_directory"],
       "properties": {
-        "contract_version": {"const": 1},
+        "contract_version": {"const": 2},
         "asset_install_command": {"const": "openflows-runtime install"},
         "role_environment_variable": {"const": "OPENFLOWS_ROLE"},
         "credential_file": {"const": "/run/openflows/runtime.json"},
-        "asset_directory": {"const": "/home/coder/.openflows/artifacts"}
+        "asset_directory": {"const": ".openflows/artifacts"}
       }
     },
     "harness": {
@@ -43,6 +45,17 @@
       "properties": {
         "openflows_template_parameter_schema_versions": {"type": "array", "uniqueItems": true, "items": {"type": "integer", "minimum": 1}},
         "minimum_manager_version": {"type": ["string", "null"], "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$"}
+      }
+    }
+  },
+  "$defs": {
+    "image": {
+      "type": "object", "additionalProperties": false,
+      "required": ["repository", "digest", "architectures"],
+      "properties": {
+        "repository": {"type": "string", "pattern": "^ghcr\\.io/the-agenticflow/workspace-runtime-(nexus|forge|sentinel|vessel|lore)$"},
+        "digest": {"type": "string", "pattern": "^sha256:[0-9a-f]{64}$"},
+        "architectures": {"type": "array", "minItems": 2, "uniqueItems": true, "items": {"enum": ["linux/amd64", "linux/arm64"]}}
       }
     }
   }
