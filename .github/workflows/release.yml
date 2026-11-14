@@ -10,11 +10,16 @@ permissions:
   attestations: write
 
 jobs:
-  publish:
+  publish-image:
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        role: [nexus, forge, sentinel, vessel, lore]
     steps:
       - uses: actions/checkout@v4
       - name: Validate tag and assets
+        id: version
         env:
           TAG: ${{ github.ref_name }}
         run: |
@@ -23,6 +28,8 @@ jobs:
           import json, os
           version = json.load(open('manifests/release.template.json'))['runtime_version']
           assert os.environ['TAG'] == 'v' + version, 'tag and manifest version differ'
+          with open(os.environ['GITHUB_OUTPUT'], 'a') as output:
+              print(f'version={version}', file=output)
           PY
       - uses: docker/setup-qemu-action@v3
       - uses: docker/setup-buildx-action@v3
@@ -36,29 +43,53 @@ jobs:
         uses: docker/build-push-action@v6
         with:
           context: .
+          build-args: |
+            ROLE=${{ matrix.role }}
+            RUNTIME_VERSION=${{ steps.version.outputs.version }}
           platforms: linux/amd64,linux/arm64
           push: true
-          tags: ghcr.io/the-agenticflow/workspace-runtime:${{ github.ref_name }}
-          build-args: RUNTIME_VERSION=${{ github.ref_name }}
+          tags: ghcr.io/the-agenticflow/workspace-runtime-${{ matrix.role }}:${{ github.ref_name }}
           provenance: mode=max
           sbom: true
       - name: Attest image provenance
         uses: actions/attest-build-provenance@v3
         with:
-          subject-name: ghcr.io/the-agenticflow/workspace-runtime
+          subject-name: ghcr.io/the-agenticflow/workspace-runtime-${{ matrix.role }}
           subject-digest: ${{ steps.build.outputs.digest }}
           push-to-registry: true
       - name: Scan image for critical vulnerabilities
         uses: aquasecurity/trivy-action@v0.36.0
         with:
-          image-ref: ghcr.io/the-agenticflow/workspace-runtime@${{ steps.build.outputs.digest }}
+          image-ref: ghcr.io/the-agenticflow/workspace-runtime-${{ matrix.role }}@${{ steps.build.outputs.digest }}
           format: table
           exit-code: '1'
           severity: CRITICAL
-      - name: Generate digest-pinned manifest
+      - name: Record image digest
         env:
-          IMAGE_DIGEST: ${{ steps.build.outputs.digest }}
-        run: python3 scripts/validate.py --digest "$IMAGE_DIGEST"
+          ROLE: ${{ matrix.role }}
+          DIGEST: ${{ steps.build.outputs.digest }}
+        run: |
+          mkdir -p digests
+          printf '%s\n' "$DIGEST" > "digests/$ROLE.txt"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: digest-${{ matrix.role }}
+          path: digests/${{ matrix.role }}.txt
+          if-no-files-found: error
+          retention-days: 7
+
+  publish-manifest:
+    needs: publish-image
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: digest-*
+          path: digests
+          merge-multiple: true
+      - name: Generate digest-pinned manifest
+        run: python3 scripts/validate.py --digests-dir digests
       - name: Publish release manifest
         env:
           GH_TOKEN: ${{ github.token }}
