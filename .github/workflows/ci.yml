@@ -10,30 +10,54 @@ permissions:
   pull-requests: read
 
 jobs:
-  conventional-title:
+  conventional-commits:
     runs-on: ubuntu-latest
     steps:
-      - name: Check pull request title
+      - name: Check pull request title and commit subjects
         env:
           GH_TOKEN: ${{ github.token }}
           GH_REPO: ${{ github.repository }}
           EVENT_NAME: ${{ github.event_name }}
           PR_TITLE: ${{ github.event.pull_request.title }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
           REF_NAME: ${{ github.ref_name }}
         run: |
-          if [ "$EVENT_NAME" = push ]; then exit 0; fi
           if [ "$EVENT_NAME" = workflow_dispatch ]; then
-            PR_TITLE=$(gh pr view "$REF_NAME" --json title --jq .title)
-            export PR_TITLE
+            PR_NUMBER=$(gh pr view "$REF_NAME" --json number --jq .number)
+            PR_TITLE=$(gh pr view "$PR_NUMBER" --json title --jq .title)
+          fi
+          export PR_TITLE
+          if [ "$EVENT_NAME" = push ]; then
+            gh api "repos/$GH_REPO/commits/$GITHUB_SHA" \
+              --jq '{sha: .sha, parents: (.parents | length), subject: (.commit.message | split("\n")[0])}' > commits.jsonl
+          else
+            gh api --paginate "repos/$GH_REPO/pulls/$PR_NUMBER/commits?per_page=100" \
+              --jq '.[] | {sha: .sha, parents: (.parents | length), subject: (.commit.message | split("\n")[0])}' > commits.jsonl
           fi
           python3 - <<'PY'
-          import os, re, sys
-          title = os.environ['PR_TITLE']
+          import json, os, re, sys
           pattern = r'(feat|fix|perf|refactor|docs|test|build|ci|chore|revert)(\([a-z0-9][a-z0-9-]*\))?(!)?: .+'
-          if not re.fullmatch(pattern, title):
-              print(f'PR title must use Conventional Commits syntax: {title!r}', file=sys.stderr)
+          errors = []
+          if os.environ['EVENT_NAME'] != 'push':
+              title = os.environ['PR_TITLE']
+              if not re.fullmatch(pattern, title):
+                  errors.append(f'PR title: {title!r}')
+          checked = 0
+          for line in open('commits.jsonl'):
+              commit = json.loads(line)
+              if commit['parents'] > 1:
+                  continue  # GitHub-generated branch-sync merge commits
+              checked += 1
+              if not re.fullmatch(pattern, commit['subject']):
+                  errors.append(f"{commit['sha'][:12]}: {commit['subject']!r}")
+          if checked == 0:
+              errors.append('No non-merge commits found')
+          if errors:
+              print('Expected Conventional Commit subjects (type(scope)!: description):', file=sys.stderr)
+              print('\n'.join(errors), file=sys.stderr)
               sys.exit(1)
-          print(f'Conventional PR title: {title}')
+          scope = ' and PR title' if os.environ['EVENT_NAME'] != 'push' else ''
+          print(f'Validated {checked} commit subject(s){scope}')
           PY
 
   role-image:
@@ -77,7 +101,7 @@ jobs:
           fi
 
   validate:
-    needs: [conventional-title, role-image]
+    needs: [conventional-commits, role-image]
     runs-on: ubuntu-latest
     steps:
       - run: echo 'All five role images passed validation'
