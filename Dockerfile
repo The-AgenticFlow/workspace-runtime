@@ -6,7 +6,6 @@ ARG OPENFLOWS_VERSION=1.8.2
 ARG CLAUDE_CODE_VERSION=2.1.325
 ARG HARNESS_SHA256_AMD64=3064cff515b9aa64d942872c87c847919a65057e01f9d7d56a122376b1e5a29e
 ARG HARNESS_SHA256_ARM64=a435f816b048400cba854f26d723d47786802f93f168e61224d8575a94bacb4c
-ARG RUNTIME_VERSION=0.1.0
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
     ca-certificates curl git nodejs npm python3 \
@@ -42,14 +41,12 @@ RUN python3 /tmp/source/package_role.py --role "$ROLE" --source /tmp/source --ou
 
 FROM runtime-base AS runtime
 ARG ROLE
-ARG RUNTIME_VERSION
 COPY --from=role-assets /tmp/role-assets/ /opt/openflows/orchestration/
 COPY scripts/openflows-runtime /usr/local/bin/openflows-runtime
 RUN chmod 0755 /usr/local/bin/openflows-runtime && \
     find /opt/openflows/orchestration/plugin/hooks -type f -name '*.sh' -exec chmod 0755 {} +
 
-ENV OPENFLOWS_RUNTIME_VERSION=$RUNTIME_VERSION \
-    OPENFLOWS_IMAGE_ROLE=$ROLE \
+ENV OPENFLOWS_IMAGE_ROLE=$ROLE \
     OPENFLOWS_ROLE=$ROLE \
     OPENFLOWS_ASSET_ROOT=/opt/openflows/orchestration
 

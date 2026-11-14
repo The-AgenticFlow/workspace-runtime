@@ -13,13 +13,14 @@ Each image contains one role: `nexus`, `forge`, `sentinel`, `vessel`, or `lore`.
 - `manifests/release.schema.json`: versioned manifest contract consumed by OpenFlows.
 - `manifests/release.template.json`: release metadata before CI fills the immutable image digest.
 - `.github/workflows/ci.yml`: validation and image build for pull requests.
-- `.github/workflows/release.yml`: tag-based image publishing, provenance, and manifest release asset.
+- `.github/workflows/release-please.yml`: prepares one release PR and publishes after that PR is merged.
+- `.github/workflows/release.yml`: five image builds, provenance, and manifest release asset.
 
 Each role owns its hook scripts under `roles/<role>/hooks/`, including a `session_start.sh`. The image contains those scripts without a separate hook mapping or Codex plugin manifest. OpenFlows supplies the client hook settings when it provisions a workspace.
 
 ## Release contract
 
-Tags use `vMAJOR.MINOR.PATCH`. CI publishes five images named `ghcr.io/the-agenticflow/workspace-runtime-<role>:<tag>` and a release manifest containing each role's image digest. The manifest is the input to Manager's compatibility check. It lists the runtime version, all supported roles, Linux architectures, bootstrap contract, credential path, and compatible template schema major versions. Manager must reject an incomplete set and pin existing workspaces to their selected role image and template digests. A tag or release manifest is immutable; corrections require a new version.
+Merging feature PRs into `main` updates the single Release Please PR. A maintainer merges that release PR when ready. Release Please then creates the `vMAJOR.MINOR.PATCH` tag and GitHub Release, and the workflow publishes five images named `ghcr.io/the-agenticflow/workspace-runtime-<role>:<tag>` plus a release manifest containing each role's image digest. The manifest is the input to Manager's compatibility check. It lists the runtime version, all supported roles, Linux architectures, bootstrap contract, credential path, and compatible template schema major versions. Manager must reject an incomplete set and pin existing workspaces to their selected role image and template digests. A tag or release manifest is immutable; corrections require a new version.
 
 The manifest uses schema version 2 for five role images and bootstrap contract version 2. Its `asset_directory` is relative to the runtime user's home directory. It does **not** claim that the current OpenFlows Terraform templates already consume these images. That integration is a separate migration, and no workspace should be switched merely because this repository publishes images.
 

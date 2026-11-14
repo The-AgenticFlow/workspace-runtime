@@ -3,12 +3,13 @@ on:
   pull_request:
   push:
     branches: [main]
+  workflow_dispatch:
 
 permissions:
   contents: read
 
 jobs:
-  validate:
+  role-image:
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -47,3 +48,9 @@ jobs:
             echo 'Image accepted another role' >&2
             exit 1
           fi
+
+  validate:
+    needs: role-image
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo 'All five role images passed validation'

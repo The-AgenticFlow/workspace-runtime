@@ -1,9 +1,12 @@
 # Release and rollback policy
 
-1. Merge a reviewed change into protected `main` after CI passes. Use semantic versioning: major for incompatible bootstrap/manifest changes, minor for compatible features or role assets, patch for compatible fixes.
-2. Create an annotated `vMAJOR.MINOR.PATCH` tag on the reviewed commit. Tags are never moved or reused.
-3. The release workflow builds all five role images for amd64 and arm64, publishes them to GHCR, attaches build provenance, scans each image, validates the five digest-pinned manifest entries, and creates a GitHub Release with that manifest. Verify every image and manifest digest before making the release available to OpenFlows. Make all five GHCR packages public, or configure a pull credential for every Coder provisioner and workspace backend; public GitHub source does not automatically make the packages public.
-4. OpenFlows selects the manifest by exact release and stores the selected role image digest and compatible template digest for each workspace. Existing workspaces do not change when a new tag appears.
+1. Merge reviewed feature PRs into protected `main` after CI passes. Conventional `feat`, `fix`, and breaking-change commits determine the next semantic version. Feature merges do not publish images.
+2. Release Please creates or updates one release PR against `main`. Review its changelog, `.version`, release manifest template version, and release-please manifest. Merge this PR only when ready to release; do not merge a sequence of older release PRs.
+3. Merging the release PR causes Release Please to create an immutable `vMAJOR.MINOR.PATCH` tag and GitHub Release. The same workflow then builds five separate role images for amd64 and arm64, publishes them to GHCR, attests and scans them, and uploads a digest-pinned `release-manifest.json` to the GitHub Release. A failed publish must be fixed before that release is made available to OpenFlows; never reuse or move a tag.
+4. Verify the release manifest and each image digest. Make all five GHCR packages public, or configure a pull credential for every Coder provisioner and workspace backend; public GitHub source does not automatically make the packages public.
+5. OpenFlows selects the manifest by exact release and stores the selected role image digest and compatible template digest for each workspace. Existing workspaces do not change when a new tag appears.
+
+The repository uses the built-in `GITHUB_TOKEN`. Release Please PRs do not trigger PR workflows automatically, so the prepare workflow dispatches CI on the release branch. The required `validate` check must pass before merging that PR.
 
 Rollback means selecting the previous known-good manifest and its compatible OpenFlows template release for **new** workspaces. Existing workspaces keep their pinned tuple. If a workspace must be moved back, provision a new workspace from that tuple and restore only supported persistent data from a valid snapshot; do not mutate an existing workspace image in place. Revoke a vulnerable release in Manager's allowlist and publish a fixed tag; do not overwrite the old image or manifest. Keep previous images and release assets available for rollback.
 
