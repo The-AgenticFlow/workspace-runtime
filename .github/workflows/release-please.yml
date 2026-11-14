@@ -28,18 +28,17 @@ jobs:
           config-file: release-please-config.json
           manifest-file: .release-please-manifest.json
       # A PR created with GITHUB_TOKEN does not trigger pull_request CI.
-      # workflow_dispatch is permitted, so run the required check explicitly.
+      # workflow_dispatch is permitted, so run the required check on the
+      # open release PR after creation and after later updates.
       - name: Validate release pull request
-        if: ${{ steps.release.outputs.prs_created == 'true' }}
+        if: ${{ steps.release.outputs.release_created != 'true' }}
         env:
           GH_TOKEN: ${{ github.token }}
-          RELEASE_PRS: ${{ steps.release.outputs.prs }}
+          GH_REPO: ${{ github.repository }}
         run: |
-          python3 - <<'PY' > release-branches.txt
-          import json, os
-          for pr in json.loads(os.environ['RELEASE_PRS']):
-              print(pr['headBranchName'])
-          PY
+          gh pr list --state open --base main \
+            --head release-please--branches--main \
+            --json headRefName --jq '.[].headRefName' > release-branches.txt
           while IFS= read -r branch; do
             gh workflow run ci.yml --ref "$branch"
           done < release-branches.txt
