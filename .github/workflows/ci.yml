@@ -10,40 +10,18 @@ permissions:
 jobs:
   validate:
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        role: [nexus, forge, sentinel, vessel, lore]
     steps:
       - uses: actions/checkout@v4
       - name: Validate manifest and role assets
         run: python3 scripts/validate.py
       - name: Check shell syntax
-        run: sh -n scripts/openflows-runtime && find roles -name '*.sh' -exec sh -n {} +
+        run: sh -n scripts/openflows-runtime && find orchestration/plugin/hooks -name '*.sh' -exec sh -n {} +
       - name: Build image
-        run: docker build --platform linux/amd64 --build-arg ROLE=${{ matrix.role }} -t workspace-runtime-${{ matrix.role }}:ci .
-      - name: Check role and installed assets
+        run: docker build --platform linux/amd64 -t workspace-runtime:ci .
+      - name: Check every role and installed assets
         run: |
-          docker run --rm workspace-runtime-${{ matrix.role }}:ci openflows-runtime check
-          docker run --rm workspace-runtime-${{ matrix.role }}:ci sh -c '
-            set -eu
-            openflows-runtime install
-            test -f "$HOME/.openflows/artifacts/orchestration/agent/agents/$OPENFLOWS_IMAGE_ROLE.agent.md"
-            test "$(find /opt/openflows/orchestration/agent/agents -type f | wc -l)" -eq 1
-            test "$(find /opt/openflows/orchestration/plugin/hooks -mindepth 1 -maxdepth 1 -type d | wc -l)" -eq 1
-            test -f "/opt/openflows/orchestration/plugin/hooks/$OPENFLOWS_IMAGE_ROLE/session_start.sh"
-            test ! -e /opt/openflows/orchestration/plugin/plugin.json
-            test ! -e /opt/openflows/orchestration/plugin/hooks/hooks.json
-            test ! -e /opt/openflows/orchestration/plugin/.codex-plugin
-            for skill in /opt/openflows/orchestration/plugin/skills/*; do
-              case "${skill##*/}" in
-                "$OPENFLOWS_IMAGE_ROLE"-*|shared-*) ;;
-                *) echo "Unexpected skill: $skill" >&2; exit 1 ;;
-              esac
-            done
-          '
-          other_role=forge
-          if [ "${{ matrix.role }}" = forge ]; then other_role=lore; fi
-          if docker run --rm -e OPENFLOWS_ROLE="$other_role" workspace-runtime-${{ matrix.role }}:ci openflows-runtime check; then
-            echo 'Image accepted another role' >&2
-            exit 1
-          fi
+          for role in nexus forge sentinel vessel lore; do
+            docker run --rm -e OPENFLOWS_ROLE="$role" workspace-runtime:ci openflows-runtime check
+            docker run --rm -e OPENFLOWS_ROLE="$role" workspace-runtime:ci sh -c \
+              'openflows-runtime install && test -f "/home/coder/.openflows/artifacts/orchestration/agent/agents/$OPENFLOWS_ROLE.agent.md"'
+          done

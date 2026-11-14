@@ -1,8 +1,5 @@
 .git
 .github
+*.md
 manifests
 scripts/validate.py
-README.md
-CONTRIBUTING.md
-RELEASING.md
-CHANGELOG.md

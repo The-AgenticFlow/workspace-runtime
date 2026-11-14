@@ -1,0 +1,72 @@
+{
+  "name": "orchestration",
+  "version": "0.1.0",
+  "description": "OpenFlows workspace role assets bundled by workspace-runtime",
+  "skills": {
+    "forge": [
+      "skills/forge-algorithmic-art/SKILL.md",
+      "skills/forge-canvas-design/SKILL.md",
+      "skills/forge-ci-fix/SKILL.md",
+      "skills/forge-coding/SKILL.md",
+      "skills/forge-frontend-design/SKILL.md",
+      "skills/forge-mcp-builder/SKILL.md",
+      "skills/forge-planning/SKILL.md",
+      "skills/forge-skill-creator/SKILL.md",
+      "skills/forge-web-artifacts-builder/SKILL.md",
+      "skills/shared-claude-api/SKILL.md",
+      "skills/shared-harness-protocol/SKILL.md"
+    ],
+    "sentinel": [
+      "skills/sentinel-algorithmic-art/SKILL.md",
+      "skills/sentinel-criteria/SKILL.md",
+      "skills/sentinel-frontend-design/SKILL.md",
+      "skills/sentinel-review/SKILL.md",
+      "skills/sentinel-web-artifacts-builder/SKILL.md",
+      "skills/sentinel-webapp-testing/SKILL.md",
+      "skills/shared-claude-api/SKILL.md",
+      "skills/shared-harness-protocol/SKILL.md"
+    ],
+    "nexus": [
+      "skills/nexus-doc-coauthoring/SKILL.md",
+      "skills/nexus-internal-comms/SKILL.md",
+      "skills/nexus-orchestration/SKILL.md",
+      "skills/nexus-skill-creator/SKILL.md",
+      "skills/nexus-slack-gif-creator/SKILL.md",
+      "skills/nexus-triage/SKILL.md",
+      "skills/nexus-xlsx/SKILL.md",
+      "skills/shared-claude-api/SKILL.md",
+      "skills/shared-harness-protocol/SKILL.md"
+    ],
+    "vessel": [
+      "skills/vessel-ci-gate/SKILL.md",
+      "skills/vessel-internal-comms/SKILL.md",
+      "skills/vessel-mcp-builder/SKILL.md",
+      "skills/vessel-merge-protocol/SKILL.md",
+      "skills/vessel-pdf/SKILL.md",
+      "skills/vessel-webapp-testing/SKILL.md",
+      "skills/shared-claude-api/SKILL.md",
+      "skills/shared-harness-protocol/SKILL.md"
+    ],
+    "lore": [
+      "skills/lore-brand-guidelines/SKILL.md",
+      "skills/lore-changelog/SKILL.md",
+      "skills/lore-doc-coauthoring/SKILL.md",
+      "skills/lore-documentation/SKILL.md",
+      "skills/lore-docx/SKILL.md",
+      "skills/lore-pdf/SKILL.md",
+      "skills/lore-pptx/SKILL.md",
+      "skills/lore-theme-factory/SKILL.md",
+      "skills/lore-xlsx/SKILL.md",
+      "skills/shared-claude-api/SKILL.md",
+      "skills/shared-harness-protocol/SKILL.md"
+    ]
+  },
+  "hooks": {
+    "forge": "hooks/forge/",
+    "sentinel": "hooks/sentinel/",
+    "nexus": "hooks/nexus/",
+    "vessel": "hooks/vessel/",
+    "lore": "hooks/lore/"
+  },
+  "commands": "commands/"
+}

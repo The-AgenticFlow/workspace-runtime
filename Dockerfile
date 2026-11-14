@@ -1,4 +1,4 @@
-FROM codercom/enterprise-base:ubuntu AS runtime-base
+FROM codercom/enterprise-base:ubuntu
 
 USER root
 ARG TARGETARCH
@@ -31,26 +31,16 @@ RUN set -eu; \
     install -m 0755 "$harness" /usr/local/bin/openflows-harness; \
     rm -rf /tmp/openflows-release "/tmp/${archive}"
 
-FROM codercom/enterprise-base:ubuntu AS role-assets
-USER root
-ARG ROLE
-COPY .version /tmp/source/.version
-COPY roles /tmp/source/roles
-COPY shared /tmp/source/shared
-COPY scripts/package_role.py /tmp/source/package_role.py
-RUN python3 /tmp/source/package_role.py --role "$ROLE" --source /tmp/source --output /tmp/role-assets
-
-FROM runtime-base AS runtime
-ARG ROLE
-ARG RUNTIME_VERSION
-COPY --from=role-assets /tmp/role-assets/ /opt/openflows/orchestration/
+COPY orchestration /opt/openflows/orchestration
 COPY scripts/openflows-runtime /usr/local/bin/openflows-runtime
 RUN chmod 0755 /usr/local/bin/openflows-runtime && \
-    find /opt/openflows/orchestration/plugin/hooks -type f -name '*.sh' -exec chmod 0755 {} +
+    find /opt/openflows/orchestration/plugin/hooks -type f -name '*.sh' -exec chmod 0755 {} + && \
+    mkdir -p /home/coder/.openflows/artifacts && \
+    chown -R coder:coder /home/coder/.openflows
 
 ENV OPENFLOWS_RUNTIME_VERSION=$RUNTIME_VERSION \
-    OPENFLOWS_IMAGE_ROLE=$ROLE \
-    OPENFLOWS_ROLE=$ROLE \
-    OPENFLOWS_ASSET_ROOT=/opt/openflows/orchestration
+    OPENFLOWS_ASSET_ROOT=/opt/openflows/orchestration \
+    OPENFLOWS_ARTIFACTS_DIR=/home/coder/.openflows/artifacts
 
 USER coder
+WORKDIR /home/coder
