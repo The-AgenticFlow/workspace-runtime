@@ -1,5 +1,20 @@
 # Changelog
 
+## 0.2.0 (2026-11-15)
+
+<!-- Release notes generated using configuration in .github/release.yml at main -->
+
+## What's Changed
+### Features
+* feat: credit contributors in release changelog by @Christiantyemele in https://github.com/The-AgenticFlow/workspace-runtime/pull/10
+### Other Changes
+* chore: assign workspace runtime code ownership to NkwaTambe by @Christiantyemele in https://github.com/The-AgenticFlow/workspace-runtime/pull/12
+* refactor: slim role images and remove Claude Code runtime by @Christiantyemele in https://github.com/The-AgenticFlow/workspace-runtime/pull/14
+* ci: enforce runtime source quality and workflow security by @Christiantyemele in https://github.com/The-AgenticFlow/workspace-runtime/pull/13
+
+
+**Full Changelog**: https://github.com/The-AgenticFlow/workspace-runtime/compare/v0.1.0...v0.2.0
+
 ## 0.1.0 (2026-11-14)
 
 
