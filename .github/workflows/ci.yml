@@ -76,9 +76,19 @@ jobs:
       - name: Check role and installed assets
         run: |
           docker run --rm workspace-runtime-${{ matrix.role }}:ci openflows-runtime check
+          docker run --rm workspace-runtime-${{ matrix.role }}:ci openflows-harness --help >/dev/null
           docker run --rm workspace-runtime-${{ matrix.role }}:ci sh -c '
             set -eu
             openflows-runtime install
+            test "$(id -u)" -eq 1000
+            test -x /usr/bin/python3
+            test -x /usr/bin/git
+            test -x /usr/bin/curl
+            test -x /usr/bin/sudo
+            if command -v claude || command -v codex || command -v aider || command -v goose || command -v node || command -v npm; then
+              echo "Unexpected agent CLI or Node.js in runtime image" >&2
+              exit 1
+            fi
             test -f "$HOME/.openflows/artifacts/orchestration/agent/agents/$OPENFLOWS_IMAGE_ROLE.agent.md"
             test "$(find /opt/openflows/orchestration/agent/agents -type f | wc -l)" -eq 1
             test "$(find /opt/openflows/orchestration/plugin/hooks -mindepth 1 -maxdepth 1 -type d | wc -l)" -eq 1
@@ -155,8 +165,21 @@ jobs:
             ghcr.io/hadolint/hadolint@sha256:32dac94127fd60b7b7e3fbfc65e1383b9b5e25c9bfd7b8536de7a539fe68a12d \
             hadolint --config /.hadolint.yaml - < Dockerfile
 
+  arm64-smoke:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: docker/setup-qemu-action@c7c53464625b32c7a7e944ae62b3e17d2b600130 # v3
+      - uses: docker/setup-buildx-action@8d2750c68a42422c14e847fe6c8ac0403b4cbd6f # v3
+      - name: Build ARM64 Forge image
+        run: docker buildx build --platform linux/arm64 --build-arg ROLE=forge --load -t workspace-runtime-forge:arm64-ci .
+      - name: Check ARM64 runtime
+        run: |
+          docker run --rm --platform linux/arm64 workspace-runtime-forge:arm64-ci openflows-runtime check
+          docker run --rm --platform linux/arm64 workspace-runtime-forge:arm64-ci openflows-harness --help >/dev/null
+
   validate:
-    needs: [conventional-commits, quality, role-image]
+    needs: [conventional-commits, quality, role-image, arm64-smoke]
     runs-on: ubuntu-latest
     steps:
       - run: echo 'All role images and quality checks passed validation'

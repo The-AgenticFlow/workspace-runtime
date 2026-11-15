@@ -4,6 +4,12 @@ This repository owns five deployable agent workspace images and their static ass
 
 Each image contains one role: `nexus`, `forge`, `sentinel`, `vessel`, or `lore`. The image sets `OPENFLOWS_ROLE`; `openflows-runtime install` copies its assets into `$HOME/.openflows/artifacts` for the runtime user. `openflows-runtime check` reports the packaged release and checks that its assets and harness exist. The installer rejects a different role supplied at runtime. The images do not register a workspace with Manager or clone a tenant repository; those dynamic operations still belong to the workspace bootstrap integration.
 
+The final image uses a digest-pinned Debian slim base, a non-root `coder` user, and only the tools needed by the current OpenFlows startup scripts. The separate Python build stage assembles role assets and is not shipped in the final image. No Claude Code, Codex, Aider, Goose, Node.js, or npm executable is installed. Coder supplies its workspace agent through the template's init script; OpenFlows supplies the coordination harness. Repository-specific build toolchains must be provided separately when a task needs them.
+
+The `HARNESS_ARCHIVE_SHA256_*` build arguments are the published SHA-256 checksums of the OpenFlows release archives for AMD64 and ARM64. The build checks them before extracting `openflows-harness`; running workspaces do not download that archive.
+
+The current OpenFlows Docker templates still call `sudo`, so the image keeps it for compatibility. The Kubernetes template migration must replace those startup calls with correct non-root ownership before using the restricted pod policy. Publishing this image alone does not activate the Kubernetes templates.
+
 ## Layout
 
 - `roles/<role>/`: each role's agent instructions, skills, commands, hooks, and role-specific standards.
