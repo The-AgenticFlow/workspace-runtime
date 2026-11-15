@@ -6,6 +6,7 @@
   "packages": {
     ".": {
       "release-type": "simple",
+      "changelog-type": "github",
       "initial-version": "0.1.0",
       "version-file": ".version",
       "extra-files": [
