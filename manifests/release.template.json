@@ -3,13 +3,54 @@
   "runtime_version": "0.1.0",
   "status": "candidate",
   "images": {
-    "nexus": {"repository": "ghcr.io/the-agenticflow/workspace-runtime-nexus", "digest": "__IMAGE_DIGEST__", "architectures": ["linux/amd64", "linux/arm64"]},
-    "forge": {"repository": "ghcr.io/the-agenticflow/workspace-runtime-forge", "digest": "__IMAGE_DIGEST__", "architectures": ["linux/amd64", "linux/arm64"]},
-    "sentinel": {"repository": "ghcr.io/the-agenticflow/workspace-runtime-sentinel", "digest": "__IMAGE_DIGEST__", "architectures": ["linux/amd64", "linux/arm64"]},
-    "vessel": {"repository": "ghcr.io/the-agenticflow/workspace-runtime-vessel", "digest": "__IMAGE_DIGEST__", "architectures": ["linux/amd64", "linux/arm64"]},
-    "lore": {"repository": "ghcr.io/the-agenticflow/workspace-runtime-lore", "digest": "__IMAGE_DIGEST__", "architectures": ["linux/amd64", "linux/arm64"]}
+    "nexus": {
+      "repository": "ghcr.io/the-agenticflow/workspace-runtime-nexus",
+      "digest": "__IMAGE_DIGEST__",
+      "architectures": [
+        "linux/amd64",
+        "linux/arm64"
+      ]
+    },
+    "forge": {
+      "repository": "ghcr.io/the-agenticflow/workspace-runtime-forge",
+      "digest": "__IMAGE_DIGEST__",
+      "architectures": [
+        "linux/amd64",
+        "linux/arm64"
+      ]
+    },
+    "sentinel": {
+      "repository": "ghcr.io/the-agenticflow/workspace-runtime-sentinel",
+      "digest": "__IMAGE_DIGEST__",
+      "architectures": [
+        "linux/amd64",
+        "linux/arm64"
+      ]
+    },
+    "vessel": {
+      "repository": "ghcr.io/the-agenticflow/workspace-runtime-vessel",
+      "digest": "__IMAGE_DIGEST__",
+      "architectures": [
+        "linux/amd64",
+        "linux/arm64"
+      ]
+    },
+    "lore": {
+      "repository": "ghcr.io/the-agenticflow/workspace-runtime-lore",
+      "digest": "__IMAGE_DIGEST__",
+      "architectures": [
+        "linux/amd64",
+        "linux/arm64"
+      ]
+    }
   },
-  "roles": ["nexus", "forge", "sentinel", "vessel", "lore"],
+  "roles": [
+    "nexus",
+    "forge",
+    "sentinel",
+    "vessel",
+    "lore"
+  ],
   "bootstrap": {
     "contract_version": 2,
     "asset_install_command": "openflows-runtime install",
