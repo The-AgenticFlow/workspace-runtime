@@ -1,6 +1,7 @@
 FROM codercom/enterprise-base:ubuntu AS runtime-base
 
 USER root
+SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 ARG TARGETARCH
 ARG OPENFLOWS_VERSION=1.8.2
 ARG CLAUDE_CODE_VERSION=2.1.325

@@ -18,18 +18,18 @@ BOLD="\033[1m"
 CYAN="\033[36m"
 GREEN="\033[32m"
 YELLOW="\033[33m"
-NC="\033[0m"  # No color
+NC="\033[0m" # No color
 
 echo -e "${BOLD}${CYAN}=== OpenFlows Forge Session ===${NC}"
 echo ""
 
 # Environment check
 if [ -z "$OPENFLOWS_TICKET" ] || [ -z "$OPENFLOWS_ROLE" ]; then
-    echo -e "${YELLOW}⚠ Environment not fully configured${NC}"
-    echo "  OPENFLOWS_TICKET=$OPENFLOWS_TICKET"
-    echo "  OPENFLOWS_ROLE=$OPENFLOWS_ROLE"
-    echo "  (This is expected if running outside a provisioned workspace.)"
-    exit 0
+  echo -e "${YELLOW}⚠ Environment not fully configured${NC}"
+  echo "  OPENFLOWS_TICKET=$OPENFLOWS_TICKET"
+  echo "  OPENFLOWS_ROLE=$OPENFLOWS_ROLE"
+  echo "  (This is expected if running outside a provisioned workspace.)"
+  exit 0
 fi
 
 echo -e "${BOLD}Assignment:${NC}"
@@ -44,30 +44,30 @@ echo ""
 # pick templates — that is controller-managed and doing it here creates
 # duplicate/parallel workspaces that break the ticket's orchestration.
 if [ -n "$CODER_WORKSPACE_ID" ]; then
-    echo -e "${BOLD}Your provisioned workspace:${NC} ${GREEN}$CODER_WORKSPACE_ID${NC}"
-    echo -e "  You are ALREADY running inside this workspace. Do NOT create, start,"
-    echo -e "  stop, delete, or re-provision any Coder workspace or template — NEXUS"
-    echo -e "  owns the workspace lifecycle and has bound this chat to this workspace."
+  echo -e "${BOLD}Your provisioned workspace:${NC} ${GREEN}$CODER_WORKSPACE_ID${NC}"
+  echo -e "  You are ALREADY running inside this workspace. Do NOT create, start,"
+  echo -e "  stop, delete, or re-provision any Coder workspace or template — NEXUS"
+  echo -e "  owns the workspace lifecycle and has bound this chat to this workspace."
 else
-    echo -e "${YELLOW}⚠ No CODER_WORKSPACE_ID set — the controller may still be"
-    echo -e "  provisioning this workspace. Do NOT create a new workspace or pick"
-    echo -e "  a template; wait for the controller instead.${NC}"
+  echo -e "${YELLOW}⚠ No CODER_WORKSPACE_ID set — the controller may still be"
+  echo -e "  provisioning this workspace. Do NOT create a new workspace or pick"
+  echo -e "  a template; wait for the controller instead.${NC}"
 fi
 echo ""
 
 # Harness verification
 if ! command -v openflows-harness >/dev/null 2>&1; then
-    echo -e "${YELLOW}⚠ openflows-harness not found in PATH${NC}"
-    echo "  Coordination with the controller is unavailable."
-    echo "  Install: /usr/local/bin/openflows-harness"
-    exit 0
+  echo -e "${YELLOW}⚠ openflows-harness not found in PATH${NC}"
+  echo "  Coordination with the controller is unavailable."
+  echo "  Install: /usr/local/bin/openflows-harness"
+  exit 0
 fi
 
 echo -e "${BOLD}Task Dispatch:${NC}"
 if dispatch=$(openflows-harness dispatch read 2>/dev/null); then
-    echo "$dispatch" | jq . 2>/dev/null || echo "$dispatch"
+  echo "$dispatch" | jq . 2>/dev/null || echo "$dispatch"
 else
-    echo "  (No dispatch payload yet — controller may still be processing.)"
+  echo "  (No dispatch payload yet — controller may still be processing.)"
 fi
 echo ""
 
@@ -77,15 +77,15 @@ phase=$(printf '%s' "$phase_json" | sed -n 's/.*"phase"[[:space:]]*:[[:space:]]*
 timestamp=$(printf '%s' "$phase_json" | sed -n 's/.*"ts"[[:space:]]*:[[:space:]]*\([0-9]*\).*/\1/p')
 
 if [ -n "$phase" ]; then
-    echo -e "${BOLD}Current Phase:${NC} ${GREEN}$phase${NC}"
-    if [ -n "$timestamp" ]; then
-        when=$(date -d "@$timestamp" "+%Y-%m-%d %H:%M:%S" 2>/dev/null || echo "(timestamp: $timestamp)")
-        echo "  Set at: $when"
-    fi
-    echo -e "  ${YELLOW}Resume from this phase. You may have made progress here already.${NC}"
+  echo -e "${BOLD}Current Phase:${NC} ${GREEN}$phase${NC}"
+  if [ -n "$timestamp" ]; then
+    when=$(date -d "@$timestamp" "+%Y-%m-%d %H:%M:%S" 2>/dev/null || echo "(timestamp: $timestamp)")
+    echo "  Set at: $when"
+  fi
+  echo -e "  ${YELLOW}Resume from this phase. You may have made progress here already.${NC}"
 else
-    echo -e "${BOLD}Current Phase:${NC} ${GREEN}planning${NC} (initial)"
-    echo "  This is a fresh assignment. Follow the workflow below."
+  echo -e "${BOLD}Current Phase:${NC} ${GREEN}planning${NC} (initial)"
+  echo "  This is a fresh assignment. Follow the workflow below."
 fi
 echo ""
 
