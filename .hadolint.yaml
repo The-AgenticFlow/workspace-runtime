@@ -1,0 +1,8 @@
+# Intermediate build stages intentionally run as root; the final stage uses coder.
+# APT package versions follow the base image and published images are scanned.
+# The base image defines root and coder by name.
+ignored:
+  - DL3002
+  - DL3008
+  - DL3066
+failure-threshold: warning

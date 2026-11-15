@@ -7,3 +7,21 @@ Keep role-owned assets under `roles/<role>/` and assets needed by every role und
 The supported roles are Nexus, Forge, Sentinel, Vessel, and Lore. Each has a separate immutable image containing only that role's assets and shared dependencies. Lore is built and published like every other role; OpenFlows consumer activation remains a separate integration decision.
 
 Report security issues privately to the maintainers through GitHub's private vulnerability reporting. Do not disclose secrets or tenant data in issues, logs, or test fixtures.
+
+## Quality checks
+
+CI checks Python with Ruff, shell scripts with ShellCheck and shfmt, maintained text with Codespell, workflows with actionlint and zizmor, and the Dockerfile with Hadolint. The tool versions and binary checksums are pinned in `.github/workflows/ci.yml`. Run the same checks before opening a pull request:
+
+```sh
+python3 scripts/validate.py
+ruff check scripts && ruff format --check scripts
+shellcheck --severity=warning scripts/openflows-runtime roles/*/hooks/*.sh
+shfmt -ln posix -i 2 -d scripts/openflows-runtime
+shfmt -ln bash -i 2 -d roles/*/hooks/*.sh
+codespell .github manifests Dockerfile README.md CONTRIBUTING.md RELEASING.md scripts roles shared
+actionlint
+zizmor --min-severity high .github/workflows
+hadolint --config .hadolint.yaml Dockerfile
+```
+
+Use `ruff format`, `ruff check --fix`, or `shfmt -w` for mechanical fixes. Review shell changes before committing because hooks enforce agent policies.

@@ -10,12 +10,12 @@ usage() {
   exit 2
 }
 
-case "$role" in nexus|forge|sentinel|vessel|lore) ;; *) usage ;; esac
+case "$role" in nexus | forge | sentinel | vessel | lore) ;; *) usage ;; esac
 if [ -n "${OPENFLOWS_IMAGE_ROLE:-}" ] && [ "$role" != "$OPENFLOWS_IMAGE_ROLE" ]; then
   echo "Image role is $OPENFLOWS_IMAGE_ROLE; requested role is $role" >&2
   exit 2
 fi
-case "${1:-}" in install|check) action="$1" ;; *) usage ;; esac
+case "${1:-}" in install | check) action="$1" ;; *) usage ;; esac
 
 test -f "$src/agent/agents/$role.agent.md"
 test -f "$src/.version"

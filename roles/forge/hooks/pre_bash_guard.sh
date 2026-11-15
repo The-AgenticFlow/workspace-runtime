@@ -11,13 +11,16 @@ except Exception:
 
 [ -z "$cmd" ] && exit 0
 
-deny() { echo "Blocked by forge policy: $1" >&2; exit 2; }
+deny() {
+  echo "Blocked by forge policy: $1" >&2
+  exit 2
+}
 
 case "$cmd" in
-  *"rm -rf /"*|*"rm -rf /*"*) deny "recursive delete of filesystem root" ;;
-  *"git push"*"--force"*main*|*"git push"*"-f"*main*) deny "force-push to main" ;;
-  *"git push"*"--force"*master*|*"git push"*"-f"*master*) deny "force-push to master" ;;
-  *"redis-cli"*) deny "direct Redis access — use openflows-harness for all coordination" ;;
+*"rm -rf /"*) deny "recursive delete of filesystem root" ;;
+*"git push"*"--force"*main* | *"git push"*"-f"*main*) deny "force-push to main" ;;
+*"git push"*"--force"*master* | *"git push"*"-f"*master*) deny "force-push to master" ;;
+*"redis-cli"*) deny "direct Redis access — use openflows-harness for all coordination" ;;
 esac
 
 # Workspace/template lifecycle is controller-managed. Workers must NEVER
@@ -34,40 +37,46 @@ _lc_denied() {
   local line="$1"
   local -a toks=() at=()
   local -a parts
-  read -r -a parts <<< "$line"
+  read -r -a parts <<<"$line"
   local part led tok at_start=1
   local re_lead='^[;&|(){}]' re_trail='[;&|(){}]'
   for part in "${parts[@]}"; do
     led="$part"
     local sep_before=0
-    while [[ "$led" =~ $re_lead ]]; do led="${led:1}"; sep_before=1; done
+    while [[ "$led" =~ $re_lead ]]; do
+      led="${led:1}"
+      sep_before=1
+    done
     led="${led%%$re_trail*}"
-    if [[ -z "$led" ]]; then at_start=1; continue; fi
+    if [[ -z "$led" ]]; then
+      at_start=1
+      continue
+    fi
     tok="${led//[\'\"]/}"
     toks+=("$tok")
-    at+=( $(( at_start || sep_before )) )
+    at+=($((at_start || sep_before)))
     at_start=0
   done
   local i t prev
-  for (( i=0; i<${#toks[@]}; i++ )); do
+  for ((i = 0; i < ${#toks[@]}; i++)); do
     t="${toks[$i]}"
     local is_start="${at[$i]}"
     local b=0
     [[ "$is_start" == "1" ]] && b=1
-    if (( i>=1 )); then
-      prev="${toks[$((i-1))]}"
+    if ((i >= 1)); then
+      prev="${toks[$((i - 1))]}"
       if [[ "$prev" == "-c" || "$prev" == "sudo" || "$prev" == "su" ]]; then b=1; fi
     fi
     local bin=0
     [[ "$t" == "coder" ]] && bin=1
     [[ "$t" == "sudo"* ]] && [[ "${t#sudo}" == "coder" ]] && bin=1
     [[ "$t" == */coder ]] && bin=1
-    if (( bin && b )); then
-      local j=$((i+1))
-      while (( j<${#toks[@]} )) && [[ "${toks[$j]}" == -* ]]; do ((j++)); done
-      if (( j<${#toks[@]} )); then
+    if ((bin && b)); then
+      local j=$((i + 1))
+      while ((j < ${#toks[@]})) && [[ "${toks[$j]}" == -* ]]; do ((j++)); done
+      if ((j < ${#toks[@]})); then
         case "${toks[$j]}" in
-          templates|template|delete|create|start|stop|workspace|workspaces|server) return 0 ;;
+        templates | template | delete | create | start | stop | workspace | workspaces | server) return 0 ;;
         esac
       fi
     fi

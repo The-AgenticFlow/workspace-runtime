@@ -110,6 +110,61 @@ jobs:
             exit 1
           fi
 
+  quality:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - name: Install pinned quality tools
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          tool_dir="$RUNNER_TEMP/workspace-runtime-quality"
+          mkdir -p "$tool_dir"
+          gh release download v0.11.0 -R koalaman/shellcheck -p shellcheck-v0.11.0.linux.x86_64.tar.gz -D "$tool_dir"
+          gh release download v3.14.1 -R mvdan/sh -p shfmt_v3.14.1_linux_amd64 -D "$tool_dir"
+          gh release download v1.7.12 -R rhysd/actionlint -p actionlint_1.7.12_linux_amd64.tar.gz -D "$tool_dir"
+          cd "$tool_dir"
+          printf '%s  %s\n' \
+            b7af85e41cc99489dcc21d66c6d5f3685138f06d34651e6d34b42ec6d54fe6f6 shellcheck-v0.11.0.linux.x86_64.tar.gz \
+            76e77641faa025814b77f153b29796b8e6fa2fca03e0c76a691608b86c7ea7bf shfmt_v3.14.1_linux_amd64 \
+            8aca8db96f1b94770f1b0d72b6dddcb1ebb8123cb3712530b08cc387b349a3d8 actionlint_1.7.12_linux_amd64.tar.gz \
+            | sha256sum -c -
+          tar -xzf shellcheck-v0.11.0.linux.x86_64.tar.gz
+          tar -xzf actionlint_1.7.12_linux_amd64.tar.gz actionlint
+          mv shfmt_v3.14.1_linux_amd64 shfmt
+          chmod +x shfmt actionlint
+          printf '%s\n%s\n' "$tool_dir" "$tool_dir/shellcheck-v0.11.0" >> "$GITHUB_PATH"
+      - name: Install Python quality tools
+        run: |
+          python3 -m venv "$RUNNER_TEMP/quality-venv"
+          "$RUNNER_TEMP/quality-venv/bin/python" -m pip install \
+            ruff==0.17.4 codespell==2.4.3 zizmor==1.16.3
+          printf '%s\n' "$RUNNER_TEMP/quality-venv/bin" >> "$GITHUB_PATH"
+      - name: Check Python style and formatting
+        run: |
+          ruff check scripts
+          ruff format --check scripts
+      - name: Check shell syntax, style, and safety
+        run: |
+          shellcheck --severity=warning scripts/openflows-runtime roles/*/hooks/*.sh
+          shfmt -ln posix -i 2 -d scripts/openflows-runtime
+          shfmt -ln bash -i 2 -d roles/*/hooks/*.sh
+      - name: Check spelling
+        run: codespell .github manifests Dockerfile README.md CONTRIBUTING.md RELEASING.md scripts roles shared
+      - name: Check workflows
+        run: |
+          actionlint
+          zizmor --min-severity high .github/workflows
+      - name: Check Dockerfile
+        run: |
+          docker run --rm -i \
+            -v "$PWD/.hadolint.yaml:/.hadolint.yaml:ro" \
+            ghcr.io/hadolint/hadolint@sha256:32dac94127fd60b7b7e3fbfc65e1383b9b5e25c9bfd7b8536de7a539fe68a12d \
+            hadolint --config /.hadolint.yaml - < Dockerfile
+
   arm64-smoke:
     runs-on: ubuntu-latest
     steps:
@@ -124,7 +179,7 @@ jobs:
           docker run --rm --platform linux/arm64 workspace-runtime-forge:arm64-ci openflows-harness --help >/dev/null
 
   validate:
-    needs: [conventional-commits, role-image, arm64-smoke]
+    needs: [conventional-commits, quality, role-image, arm64-smoke]
     runs-on: ubuntu-latest
     steps:
-      - run: echo 'All five role images passed validation'
+      - run: echo 'All role images and quality checks passed validation'

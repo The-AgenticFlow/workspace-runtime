@@ -2,8 +2,8 @@
 """Assemble one role's assets into the existing workspace artifact layout."""
 
 import argparse
-from pathlib import Path
 import shutil
+from pathlib import Path
 
 
 def copy(source: Path, destination: Path) -> None:
@@ -42,13 +42,18 @@ def package(role: str, source: Path, output: Path) -> None:
         copy(role_source / "registry.json", output / "agent/registry.json")
 
     copy_directory(source / "shared/standards", output / "agent/standards")
-    copy_directory(role_source / "standards", output / "agent/standards", required=False)
+    copy_directory(
+        role_source / "standards", output / "agent/standards", required=False
+    )
     copy_directory(source / "shared/skills", output / "plugin/skills")
     copy_directory(role_source / "skills", output / "plugin/skills")
     copy_directory(source / "shared/commands", output / "plugin/commands")
     copy_directory(role_source / "commands", output / "plugin/commands")
     copy(role_source / "hooks", output / "plugin/hooks" / role)
-    copy(source / "shared/config/mcp.json.template", output / "plugin/mcp/mcp.json.template")
+    copy(
+        source / "shared/config/mcp.json.template",
+        output / "plugin/mcp/mcp.json.template",
+    )
 
 
 def main() -> None:
