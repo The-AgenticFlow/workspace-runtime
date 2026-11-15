@@ -22,7 +22,6 @@ test -f "$src/.version"
 test -d "$src/plugin/skills/shared-harness-protocol"
 test -d "$src/plugin/hooks/$role"
 command -v openflows-harness >/dev/null
-command -v claude >/dev/null
 
 if [ "$action" = check ]; then
   printf 'workspace-runtime %s role=%s harness=%s\n' \
