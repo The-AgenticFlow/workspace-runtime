@@ -1,5 +1,21 @@
 # Changelog
 
+## 0.2.1 (2026-11-16)
+
+<!-- Release notes generated using configuration in .github/release.yml at main -->
+
+## What's Changed
+### Dependencies
+* chore(deps): bump actions/checkout from 4.4.0 to 7.0.1 by @dependabot[bot] in https://github.com/The-AgenticFlow/workspace-runtime/pull/1
+* chore(deps): bump docker/login-action from 3.7.0 to 4.8.0 by @dependabot[bot] in https://github.com/The-AgenticFlow/workspace-runtime/pull/2
+* chore(deps): bump docker/build-push-action from 6.19.2 to 7.4.0 by @dependabot[bot] in https://github.com/The-AgenticFlow/workspace-runtime/pull/3
+* chore(deps): bump actions/attest-build-provenance from 3.0.0 to 4.2.2 by @dependabot[bot] in https://github.com/The-AgenticFlow/workspace-runtime/pull/4
+
+## New Contributors
+* @dependabot[bot] made their first contribution in https://github.com/The-AgenticFlow/workspace-runtime/pull/1
+
+**Full Changelog**: https://github.com/The-AgenticFlow/workspace-runtime/compare/v0.2.0...v0.2.1
+
 ## 0.2.0 (2026-11-15)
 
 <!-- Release notes generated using configuration in .github/release.yml at main -->
