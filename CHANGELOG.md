@@ -1,5 +1,16 @@
 # Changelog
 
+## 0.3.1 (2026-11-17)
+
+<!-- Release notes generated using configuration in .github/release.yml at main -->
+
+## What's Changed
+### Other Changes
+* fix(docker): remove unused openssh-client flagged by Trivy CVE-2026-60002 by @NkwaTambe in https://github.com/The-AgenticFlow/workspace-runtime/pull/19
+
+
+**Full Changelog**: https://github.com/The-AgenticFlow/workspace-runtime/compare/v0.3.0...v0.3.1
+
 ## 0.3.0 (2026-11-17)
 
 <!-- Release notes generated using configuration in .github/release.yml at main -->

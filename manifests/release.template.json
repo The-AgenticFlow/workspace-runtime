@@ -1,6 +1,6 @@
 {
   "schema_version": 2,
-  "runtime_version": "0.3.0",
+  "runtime_version": "0.3.1",
   "status": "compatible",
   "images": {
     "nexus": {
