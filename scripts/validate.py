@@ -33,11 +33,18 @@ def validate(data, *, released=False):
         r"openflows-\d+\.\d+\.\d+", data["harness"]["openflows_release"]
     )
     versions = data["compatibility"]["openflows_template_parameter_schema_versions"]
+    min_manager_version = data["compatibility"]["minimum_manager_version"]
     assert all(isinstance(v, int) and v > 0 for v in versions)
+    assert min_manager_version is None or (
+        isinstance(min_manager_version, str) and bool(min_manager_version.strip())
+    )
     if data["status"] == "compatible":
-        assert versions and data["compatibility"]["minimum_manager_version"]
+        assert versions
     else:
         assert data["status"] == "candidate" and not versions
+    assert (ROOT / "runtime/lib/bootstrap.sh").is_file()
+    assert (ROOT / "runtime/bin/openflows-credential-refresh").is_file()
+    assert (ROOT / "runtime/VERSION").is_file()
     for role in ROLES:
         role_source = ROOT / "roles" / role
         assert (role_source / "agent.md").is_file()

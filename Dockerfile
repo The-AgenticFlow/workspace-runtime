@@ -12,7 +12,7 @@ FROM debian:trixie-slim@sha256:a72b4433de1cf7d6bae0c4cee74d0547f58601a643b3375f0
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    ca-certificates curl git jq python3 sudo \
+    ca-certificates curl git jq openssh-client procps python3 sudo \
     && rm -rf /var/lib/apt/lists/*
 RUN groupadd --gid 1000 coder \
     && useradd --uid 1000 --gid coder --create-home --shell /bin/bash coder \
@@ -40,14 +40,21 @@ RUN set -eu; \
     mkdir -p /tmp/openflows-release; \
     tar -xzf "/tmp/${archive}" -C /tmp/openflows-release; \
     harness="$(find /tmp/openflows-release -type f -name openflows-harness -print -quit)"; \
+    controller="$(find /tmp/openflows-release -type f -name openflows -print -quit)"; \
     test -n "$harness"; \
+    test -n "$controller"; \
     install -m 0755 "$harness" /usr/local/bin/openflows-harness; \
+    install -m 0755 "$controller" /usr/local/bin/openflows; \
     rm -rf /tmp/openflows-release "/tmp/${archive}"
 
 ARG ROLE
 COPY --from=role-assets /tmp/role-assets/ /opt/openflows/orchestration/
 COPY scripts/openflows-runtime /usr/local/bin/openflows-runtime
-RUN chmod 0755 /usr/local/bin/openflows-runtime \
+COPY runtime/lib/bootstrap.sh /opt/openflows/runtime/lib/bootstrap.sh
+COPY runtime/bin/openflows-credential-refresh /opt/openflows/runtime/bin/openflows-credential-refresh
+COPY runtime/VERSION /opt/openflows/runtime/VERSION
+RUN chmod 0755 /usr/local/bin/openflows-runtime /opt/openflows/runtime/bin/openflows-credential-refresh \
+    && chmod 0644 /opt/openflows/runtime/lib/bootstrap.sh /opt/openflows/runtime/VERSION \
     && find /opt/openflows/orchestration/plugin/hooks -type f -name '*.sh' -exec chmod 0755 {} +
 
 ENV HOME=/home/coder \
