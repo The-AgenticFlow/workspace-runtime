@@ -12,7 +12,7 @@ FROM debian:trixie-slim@sha256:a72b4433de1cf7d6bae0c4cee74d0547f58601a643b3375f0
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    ca-certificates curl git jq openssh-client procps python3 sudo \
+    ca-certificates curl git jq procps python3 sudo \
     && rm -rf /var/lib/apt/lists/*
 RUN groupadd --gid 1000 coder \
     && useradd --uid 1000 --gid coder --create-home --shell /bin/bash coder \
