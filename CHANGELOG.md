@@ -1,5 +1,18 @@
 # Changelog
 
+## 0.3.0 (2026-11-17)
+
+<!-- Release notes generated using configuration in .github/release.yml at main -->
+
+## What's Changed
+### Other Changes
+* feat(runtime): bundle bootstrap library, controller binary, and schema-2 compatibility by @NkwaTambe in https://github.com/The-AgenticFlow/workspace-runtime/pull/16
+
+## New Contributors
+* @NkwaTambe made their first contribution in https://github.com/The-AgenticFlow/workspace-runtime/pull/16
+
+**Full Changelog**: https://github.com/The-AgenticFlow/workspace-runtime/compare/v0.2.1...v0.3.0
+
 ## 0.2.1 (2026-11-16)
 
 <!-- Release notes generated using configuration in .github/release.yml at main -->
