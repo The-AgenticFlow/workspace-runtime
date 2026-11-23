@@ -60,7 +60,7 @@
   },
   "harness": {
     "name": "openflows-harness",
-    "openflows_release": "openflows-1.8.2"
+    "openflows_release": "openflows-1.9.0"
   },
   "compatibility": {
     "openflows_template_parameter_schema_versions": [
