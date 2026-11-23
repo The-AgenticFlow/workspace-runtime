@@ -1,5 +1,16 @@
 # Changelog
 
+## 0.4.0 (2026-11-23)
+
+<!-- Release notes generated using configuration in .github/release.yml at main -->
+
+## What's Changed
+### Other Changes
+* feat(runtime): bump bundled openflows to 1.9.0 by @NkwaTambe in https://github.com/The-AgenticFlow/workspace-runtime/pull/26
+
+
+**Full Changelog**: https://github.com/The-AgenticFlow/workspace-runtime/compare/v0.3.1...v0.4.0
+
 ## 0.3.1 (2026-11-17)
 
 <!-- Release notes generated using configuration in .github/release.yml at main -->
