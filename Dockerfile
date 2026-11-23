@@ -22,9 +22,9 @@ RUN groupadd --gid 1000 coder \
     && chown -R coder:coder /home/coder
 
 ARG TARGETARCH
-ARG OPENFLOWS_VERSION=1.8.2
-ARG HARNESS_ARCHIVE_SHA256_AMD64=3064cff515b9aa64d942872c87c847919a65057e01f9d7d56a122376b1e5a29e
-ARG HARNESS_ARCHIVE_SHA256_ARM64=a435f816b048400cba854f26d723d47786802f93f168e61224d8575a94bacb4c
+ARG OPENFLOWS_VERSION=1.9.0
+ARG HARNESS_ARCHIVE_SHA256_AMD64=ec54fe6439c524c2af390ca021ab86a18e90889aa95db9de31baa3c8ebea6967
+ARG HARNESS_ARCHIVE_SHA256_ARM64=90ae71254b0d69ed92870522abd6c5bcefa299fbf2c8c1be7b69de8b2ca22be0
 
 # These values are the SHA-256 hashes of the OpenFlows release archives,
 # not image digests. Verify the archive before installing its harness binary.
